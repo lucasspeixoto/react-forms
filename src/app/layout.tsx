@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="bg-zinc-950 text-zinc-300 flex w-full h-screen py-10 items-center justify-center">
+        <div className="bg-zinc-950 text-zinc-300 flex flex-col w-full h-screen py-10 items-center justify-center">
           {children}
         </div>
       </body>
