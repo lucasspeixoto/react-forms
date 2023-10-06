@@ -48,12 +48,14 @@ const createUserFormSchema = z
       .string()
       .nonempty("A confirmação da senha é obrigatório!")
       .min(6, "A senha precisa conter no mínimo 6 caracteres!"),
-    techs: z.array(
-      z.object({
-        name: z.string().nonempty("O título é obrigatório!"),
-        knowledge: z.number().min(1).max(100),
-      })
-    ),
+    techs: z
+      .array(
+        z.object({
+          title: z.string().nonempty("O título é obrigatório!"),
+          knowledge: z.coerce.number().min(1).max(100),
+        })
+      )
+      .min(2, "Necessário ao menos 2 tecnologias"),
   })
   .refine((data) => data.password === data.confirmedPassword, {
     message: "As senhas precisam ser iguais",
@@ -81,7 +83,7 @@ export default function Home() {
   });
 
   function addNewTech() {
-    append({ name: "", knowledge: 0 });
+    append({ title: "", knowledge: 0 });
   }
 
   function createUserHandler(data: unknown) {
@@ -90,7 +92,7 @@ export default function Home() {
 
   return (
     <React.Fragment>
-      <div className="h-auto w-auto bg-zinc-700 rounded-lg p-8 flex items-center justify-center">
+      <div className="w-auto bg-zinc-700 rounded-lg p-8 flex items-center justify-center">
         <form
           onSubmit={handleSubmit(createUserHandler)}
           className="flex flex-col gap-3"
@@ -167,8 +169,11 @@ export default function Home() {
             </>
           </div>
 
-          <div className="flex flex-col gap-1 max-w-[400px]">
-            <label htmlFor="" className="flex items-center justify-between text-white font-bold">
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor=""
+              className="flex items-center justify-between text-white font-bold"
+            >
               Tecnologias
               <button
                 type="button"
@@ -182,26 +187,42 @@ export default function Home() {
             {fields.map((field, index) => {
               return (
                 <div className="flex gap-2" key={field.id}>
-                  <input
-                    type="text"
-                    {...register(`techs.${index}.name`)}
-                    className="flex-1 rounded-lg border-4 border-blue-300 border-stroke bg-transparent py-2 pl-6 pr-10 outline-none focus:border-blue-500 focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input"
-                  />
+                  <div className="flex flex-col gap-1 flex-1">
+                    <input
+                      type="text"
+                      {...register(`techs.${index}.title`)}
+                      className="flex-1 rounded-lg border-4 border-blue-300 border-stroke bg-transparent py-2 pl-6 pr-10 outline-none focus:border-blue-500 focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input"
+                    />
 
-                  {errors.techs?.[index]?.name && (
-                    <span className="text-xs text-red-400">
-                      {errors.techs?.[index]?.name?.message}
-                    </span>
-                  )}
+                    {errors.techs?.[index]?.title && (
+                      <span className="text-xs text-red-400">
+                        {errors.techs?.[index]?.title?.message}
+                      </span>
+                    )}
+                  </div>
 
-                  <input
-                    type="number"
-                    {...register(`techs.${index}.knowledge`)}
-                    className="w-16 rounded-lg border-4 border-blue-300 border-stroke bg-transparent py-2 pl-6 pr-10 outline-none focus:border-blue-500 focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input"
-                  />
+                  <div className="flex flex-col gap-1">
+                    <input
+                      type="number"
+                      {...register(`techs.${index}.knowledge`)}
+                      className="w-16 rounded-lg border-4 border-blue-300 border-stroke bg-transparent py-2 px-1 outline-none focus:border-blue-500 focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input"
+                    />
+
+                    {errors.techs?.[index]?.knowledge && (
+                      <span className="text-xs text-red-400">
+                        {errors.techs?.[index]?.knowledge?.message}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}
+
+            {errors.techs && (
+              <span className="text-xs text-red-400">
+                {errors.techs.message}
+              </span>
+            )}
           </div>
 
           <div className="flex justify-center">
@@ -215,7 +236,7 @@ export default function Home() {
         </form>
       </div>
 
-      <pre className="m-4">{formOutput}</pre>
+      <pre className="m-14 z-20">{formOutput}</pre>
     </React.Fragment>
   );
 }
